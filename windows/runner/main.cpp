@@ -7,6 +7,23 @@
 
 int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
                       _In_ wchar_t *command_line, _In_ int show_command) {
+  HANDLE single_instance =
+      ::CreateMutexW(nullptr, TRUE, L"BarcodeLabeler.SingleInstance");
+  if (::GetLastError() == ERROR_ALREADY_EXISTS) {
+    HWND running =
+        ::FindWindowW(L"FLUTTER_RUNNER_WIN32_WINDOW", L"Barcode Labeler");
+    if (running != nullptr) {
+      if (::IsIconic(running)) {
+        ::ShowWindow(running, SW_RESTORE);
+      }
+      ::SetForegroundWindow(running);
+    }
+    if (single_instance != nullptr) {
+      ::CloseHandle(single_instance);
+    }
+    return EXIT_SUCCESS;
+  }
+
   // Attach to console when present (e.g., 'flutter run') or create a
   // new console when running with a debugger.
   if (!::AttachConsole(ATTACH_PARENT_PROCESS) && ::IsDebuggerPresent()) {
@@ -39,5 +56,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
   }
 
   ::CoUninitialize();
+  if (single_instance != nullptr) {
+    ::ReleaseMutex(single_instance);
+    ::CloseHandle(single_instance);
+  }
   return EXIT_SUCCESS;
 }

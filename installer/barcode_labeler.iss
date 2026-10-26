@@ -20,6 +20,7 @@ Compression=lzma2
 SolidCompression=yes
 WizardStyle=modern
 UninstallDisplayIcon={app}\barcode_labeler.exe
+ChangesAssociations=yes
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"
@@ -30,6 +31,12 @@ Source: "..\build\windows\x64\runner\Release\*"; DestDir: "{app}"; Flags: ignore
 [Icons]
 Name: "{group}\Barcode Labeler"; Filename: "{app}\barcode_labeler.exe"
 Name: "{autodesktop}\Barcode Labeler"; Filename: "{app}\barcode_labeler.exe"; Tasks: desktopicon
+
+[Registry]
+Root: HKA; Subkey: "Software\Classes\.labeldesign"; ValueType: string; ValueName: ""; ValueData: "BarcodeLabeler.Design"; Flags: uninsdeletevalue
+Root: HKA; Subkey: "Software\Classes\BarcodeLabeler.Design"; ValueType: string; ValueName: ""; ValueData: "Barcode label design"; Flags: uninsdeletekey
+Root: HKA; Subkey: "Software\Classes\BarcodeLabeler.Design\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\barcode_labeler.exe,0"
+Root: HKA; Subkey: "Software\Classes\BarcodeLabeler.Design\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\barcode_labeler.exe"" ""%1"""
 
 [Run]
 Filename: "{app}\barcode_labeler.exe"; Description: "{cm:LaunchProgram,Barcode Labeler}"; Flags: nowait postinstall skipifsilent

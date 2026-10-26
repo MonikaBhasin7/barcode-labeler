@@ -33,12 +33,18 @@ dependencies:
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^1.0.8
   barcode: ^2.2.9
   pdf: ^3.12.0
   printing: ^5.14.3
-  excel: ^4.0.6
   file_picker: ^13.3.0
+  archive: ^4.0.9
+  xml: ^6.6.1
+  barcode_widget: ^2.0.4
+  get: ^4.7.3
+  shared_preferences: ^2.5.6
+  intl: ^0.20.3
+  path: ^1.9.1
+  image: ">=4.8.0 <4.11.0"
 
 dev_dependencies:
   flutter_test:
@@ -56,11 +62,17 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
-
-  # The following line ensures that the Material Icons font is
-  # included with your application, so that you can use the icons in
-  # the material Icons class.
   uses-material-design: true
+
+  assets:
+    - assets/fonts/
+
+  fonts:
+    - family: Roboto
+      fonts:
+        - asset: assets/fonts/Roboto-Regular.ttf
+        - asset: assets/fonts/Roboto-Bold.ttf
+          weight: 700
 
   # To add assets to your application, add an assets section, like this:
   # assets:
