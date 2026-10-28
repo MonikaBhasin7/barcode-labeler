@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:barcode_labeler/features/design/data/models/label_design.dart';
+import 'package:barcode_labeler/features/design/data/models/label_font.dart';
 import 'package:barcode_labeler/features/design/data/models/label_item.dart';
 import 'package:barcode_labeler/features/design/data/models/label_value.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -32,6 +33,10 @@ void main() {
 
     expect(jsonEncode(reopened.toJson()), jsonEncode(design.toJson()));
     expect(reopened.dataFile?.path, r'C:\Labels\E7.xlsx');
+    expect(reopened.items.whereType<TextItem>().map((text) => text.font), [
+      LabelFont.roboto,
+      LabelFont.robotoCondensed,
+    ]);
     expect((reopened.items.last as PictureItem).imageBytes, [1, 2, 3, 4]);
   });
 
@@ -92,5 +97,17 @@ void main() {
     expect(reopened.serialNumberSources.single.key, 'joined/b');
     expect(reopened.serialNumberSources.single.label, 'Barcode 1 · part 2');
     expect(reopened.printQuestions.single.prompt, 'Shift?');
+  });
+
+  test('an old design without a font opens with Roboto', () {
+    final text = TextItem.fromJson({
+      'kind': 'text',
+      'id': 'old',
+      'name': 'Old text',
+      'frame': {'x': 0, 'y': 0, 'width': 10, 'height': 5},
+      'value': {'kind': 'fixedText', 'fixedText': 'Hi'},
+    });
+
+    expect(text.font, LabelFont.roboto);
   });
 }

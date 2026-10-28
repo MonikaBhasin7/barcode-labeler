@@ -61,4 +61,24 @@ void main() {
     expect(find.text('Value comes from'), findsOneWidget);
     expect(find.text('Untitled •'), findsOneWidget);
   });
+
+  testWidgets('a text item has a font list next to its text size', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1600, 1000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(const BarcodeLabelerApp());
+    await tester.tap(find.text('New design'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Cancel'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Text').first);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Font'), findsOneWidget);
+    expect(find.text('Roboto'), findsOneWidget);
+    expect(find.text('Text size'), findsOneWidget);
+  });
 }

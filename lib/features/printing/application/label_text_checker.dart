@@ -4,23 +4,21 @@ import 'dart:typed_data';
 import 'package:pdf/pdf.dart';
 
 import '../../../core/units.dart';
+import '../../design/data/models/label_font.dart';
 import '../../design/data/models/label_item.dart';
 import 'label_print_request.dart';
 
 const double _fitTolerancePt = 0.5;
 
 class LabelTextChecker {
-  LabelTextChecker(LabelFonts fonts) : _document = PdfDocument() {
-    _regular = PdfTtfFont(_document, ByteData.sublistView(fonts.regular));
-    _bold = PdfTtfFont(_document, ByteData.sublistView(fonts.bold));
-  }
+  LabelTextChecker(this._fonts);
 
-  final PdfDocument _document;
-  late final PdfFont _regular;
-  late final PdfFont _bold;
+  final LabelFonts _fonts;
+  final PdfDocument _document = PdfDocument();
+  final Map<(LabelFont, bool), PdfFont> _pdfFonts = {};
 
   String? problemWith(TextItem item, String text) {
-    final font = item.bold ? _bold : _regular;
+    final font = _pdfFontFor(item);
     final unprintable = _firstUnprintableLetter(text, font);
     if (unprintable != null) {
       return 'has a letter that cannot be printed yet ("$unprintable"). '
@@ -30,6 +28,14 @@ class LabelTextChecker {
       return 'is too long for its box. Make the box bigger or the text smaller.';
     }
     return null;
+  }
+
+  PdfFont _pdfFontFor(TextItem item) {
+    return _pdfFonts.putIfAbsent((item.font, item.bold), () {
+      final files = _fonts.filesFor(item.font);
+      final bytes = item.bold ? files.bold : files.regular;
+      return PdfTtfFont(_document, ByteData.sublistView(bytes));
+    });
   }
 
   String? _firstUnprintableLetter(String text, PdfFont font) {

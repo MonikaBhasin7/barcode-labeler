@@ -18,6 +18,11 @@ tested on a Mac, and installed on Windows.
   "add days"), a value typed when printing, several of these joined
   together, or the same value as another item. Text can be added before
   and after.
+- **Fonts:** 8 fonts ship with the app (Roboto, Roboto Condensed, Roboto
+  Mono, Lato, Montserrat, Libre Franklin, Rubik, Work Sans), each with
+  normal and bold, plus a text size. They are embedded in the PDF, so a
+  label looks the same on every computer. Licences:
+  `assets/fonts/FONT_LICENSES.txt`.
 - **Units:** mm, cm or inches (Settings). Designs are always stored in mm.
 - **Excel:** `.xlsx` and `.csv`, read in the background. Formula cells show
   their result, and number and date formats (`000123`, `"LOT-"000`,

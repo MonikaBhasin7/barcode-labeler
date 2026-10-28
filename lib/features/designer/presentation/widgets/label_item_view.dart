@@ -59,7 +59,7 @@ class LabelItemView extends StatelessWidget {
           TextAlignment.right => TextAlign.right,
         },
         style: TextStyle(
-          fontFamily: 'Roboto',
+          fontFamily: text.font.familyName,
           fontSize: _pointsToPixels(text.fontSizePt),
           fontWeight: text.bold ? FontWeight.w700 : FontWeight.w400,
           color: Colors.black,

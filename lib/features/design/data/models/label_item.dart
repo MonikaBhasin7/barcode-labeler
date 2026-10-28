@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import '../../../../core/json_reading.dart';
 import 'barcode_type.dart';
+import 'label_font.dart';
 import 'label_value.dart';
 
 enum QuarterTurn {
@@ -146,6 +147,7 @@ class TextItem extends LabelItem {
     required super.frame,
     super.rotation = QuarterTurn.none,
     required this.value,
+    this.font = LabelFont.roboto,
     this.fontSizePt = 12,
     this.bold = false,
     this.alignment = TextAlignment.left,
@@ -158,6 +160,7 @@ class TextItem extends LabelItem {
       frame: _readFrame(json),
       rotation: _readRotation(json),
       value: LabelValue.fromJson(readMap(json, 'value')),
+      font: readEnum(LabelFont.values, json['font'], LabelFont.roboto),
       fontSizePt: readDouble(json, 'fontSizePt', 12),
       bold: readBool(json, 'bold', false),
       alignment: readEnum(
@@ -169,6 +172,7 @@ class TextItem extends LabelItem {
   }
 
   final LabelValue value;
+  final LabelFont font;
   final double fontSizePt;
   final bool bold;
   final TextAlignment alignment;
@@ -181,6 +185,7 @@ class TextItem extends LabelItem {
 
   TextItem copyWith({
     LabelValue? value,
+    LabelFont? font,
     double? fontSizePt,
     bool? bold,
     TextAlignment? alignment,
@@ -191,6 +196,7 @@ class TextItem extends LabelItem {
       frame: frame,
       rotation: rotation,
       value: value ?? this.value,
+      font: font ?? this.font,
       fontSizePt: fontSizePt ?? this.fontSizePt,
       bold: bold ?? this.bold,
       alignment: alignment ?? this.alignment,
@@ -210,6 +216,7 @@ class TextItem extends LabelItem {
       frame: frame ?? this.frame,
       rotation: rotation ?? this.rotation,
       value: value,
+      font: font,
       fontSizePt: fontSizePt,
       bold: bold,
       alignment: alignment,
@@ -220,6 +227,7 @@ class TextItem extends LabelItem {
   Map<String, dynamic> toJson() => {
     ...commonJson('text'),
     'value': value.toJson(),
+    'font': font.name,
     'fontSizePt': fontSizePt,
     'bold': bold,
     'alignment': alignment.name,

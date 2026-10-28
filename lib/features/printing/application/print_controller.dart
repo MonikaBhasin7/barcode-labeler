@@ -10,6 +10,7 @@ import '../../../core/file_names.dart';
 import '../../../core/settings/app_settings_store.dart';
 import '../../design/application/label_value_resolver.dart';
 import '../../design/data/models/label_design.dart';
+import '../../design/data/models/label_font.dart';
 import '../../designer/application/designer_controller.dart';
 import '../data/models/printer_offset.dart';
 import 'label_print_request.dart';
@@ -240,7 +241,7 @@ class PrintController extends GetxController {
       final pdf = await buildAlignmentTestPdf(
         sheet: design.sheet,
         offset: offset.value,
-        regularFont: fonts.regular,
+        regularFont: fonts.barcodeNumberFiles.regular,
       );
       final printed = await _sendToPrinter(pdf);
       if (!printed) return const PrintOutcome.failed('Printing was cancelled.');
@@ -304,13 +305,19 @@ class PrintController extends GetxController {
   }
 
   Future<void> _loadFontsThenPreview() async {
-    final regular = await rootBundle.load('assets/fonts/Roboto-Regular.ttf');
-    final bold = await rootBundle.load('assets/fonts/Roboto-Bold.ttf');
-    _fonts = LabelFonts(
+    _fonts = LabelFonts({
+      for (final font in LabelFont.values) font: await _filesOf(font),
+    });
+    schedulePreview(immediately: true);
+  }
+
+  Future<FontFiles> _filesOf(LabelFont font) async {
+    final regular = await rootBundle.load(font.regularAsset);
+    final bold = await rootBundle.load(font.boldAsset);
+    return FontFiles(
       regular: regular.buffer.asUint8List(),
       bold: bold.buffer.asUint8List(),
     );
-    schedulePreview(immediately: true);
   }
 
   LabelPrintRequest? _currentRequest() {
@@ -327,7 +334,7 @@ class PrintController extends GetxController {
       typedAnswers: Map.of(typedAnswers),
       offset: offset.value,
       today: DateTime.now(),
-      fonts: fonts,
+      fonts: fonts.onlyFor(design.fontsUsed),
     );
   }
 

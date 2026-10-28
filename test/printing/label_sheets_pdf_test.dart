@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:barcode_labeler/features/design/data/models/label_design.dart';
+import 'package:barcode_labeler/features/design/data/models/label_font.dart';
 import 'package:barcode_labeler/features/printing/application/label_sheets_pdf.dart';
 import 'package:barcode_labeler/features/printing/data/models/printer_offset.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -49,7 +50,7 @@ void main() {
     final pdf = await buildAlignmentTestPdf(
       sheet: sixLabelSheet,
       offset: const PrinterOffset(rightMm: 1, downMm: -0.5),
-      regularFont: readBundledFonts().regular,
+      regularFont: readBundledFonts().barcodeNumberFiles.regular,
     );
     writeSampleWhenAsked('alignment_test.pdf', pdf);
 
@@ -61,5 +62,14 @@ void main() {
 
     expect(format.width, closeTo(595.28, 0.01));
     expect(format.height, closeTo(841.89, 0.01));
+  });
+
+  test('only the fonts a design uses go into the print job', () {
+    final fonts = readBundledFonts().onlyFor(stockLabelDesign.fontsUsed);
+
+    expect(fonts.filesByFont.keys.toSet(), {
+      LabelFont.roboto,
+      LabelFont.robotoCondensed,
+    });
   });
 }

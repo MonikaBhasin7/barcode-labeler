@@ -5,6 +5,7 @@ import '../../../core/units.dart';
 import '../../design/application/label_value_resolver.dart';
 import '../../design/application/sheet_geometry.dart';
 import '../../design/data/models/label_design.dart';
+import '../../design/data/models/label_font.dart';
 import '../../design/data/models/label_item.dart';
 import '../data/models/printer_offset.dart';
 import 'label_text_checker.dart';
@@ -12,11 +13,31 @@ import 'label_text_checker.dart';
 const int _maxProblemsListed = 8;
 const String nothingToPrintProblem = 'There is nothing to print yet.';
 
-class LabelFonts {
-  const LabelFonts({required this.regular, required this.bold});
+class FontFiles {
+  const FontFiles({required this.regular, required this.bold});
 
   final Uint8List regular;
   final Uint8List bold;
+}
+
+class LabelFonts {
+  const LabelFonts(this.filesByFont);
+
+  final Map<LabelFont, FontFiles> filesByFont;
+
+  FontFiles filesFor(LabelFont font) {
+    return filesByFont[font] ?? filesByFont[LabelFont.roboto]!;
+  }
+
+  FontFiles get barcodeNumberFiles => filesFor(LabelFont.roboto);
+
+  LabelFonts onlyFor(Set<LabelFont> fonts) {
+    return LabelFonts({
+      for (final entry in filesByFont.entries)
+        if (fonts.contains(entry.key) || entry.key == LabelFont.roboto)
+          entry.key: entry.value,
+    });
+  }
 }
 
 class LabelPrintRequest {

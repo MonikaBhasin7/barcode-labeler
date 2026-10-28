@@ -2,16 +2,20 @@ import 'dart:io';
 
 import 'package:barcode_labeler/features/design/data/models/barcode_type.dart';
 import 'package:barcode_labeler/features/design/data/models/label_design.dart';
+import 'package:barcode_labeler/features/design/data/models/label_font.dart';
 import 'package:barcode_labeler/features/design/data/models/label_item.dart';
 import 'package:barcode_labeler/features/design/data/models/label_value.dart';
 import 'package:barcode_labeler/features/printing/application/label_print_request.dart';
 import 'package:barcode_labeler/features/printing/data/models/printer_offset.dart';
 
 LabelFonts readBundledFonts() {
-  return LabelFonts(
-    regular: File('assets/fonts/Roboto-Regular.ttf').readAsBytesSync(),
-    bold: File('assets/fonts/Roboto-Bold.ttf').readAsBytesSync(),
-  );
+  return LabelFonts({
+    for (final font in LabelFont.values)
+      font: FontFiles(
+        regular: File(font.regularAsset).readAsBytesSync(),
+        bold: File(font.boldAsset).readAsBytesSync(),
+      ),
+  });
 }
 
 const SheetLayout sixLabelSheet = SheetLayout(
@@ -70,6 +74,7 @@ const LabelDesign stockLabelDesign = LabelDesign(
       name: 'Date',
       frame: ItemFrame(x: 4, y: 38, width: 40, height: 8),
       value: LabelValue(kind: ValueSourceKind.date, prefix: 'Packed '),
+      font: LabelFont.robotoCondensed,
       fontSizePt: 8,
     ),
     ShapeItem(

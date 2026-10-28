@@ -1,3 +1,4 @@
+import 'package:barcode_labeler/features/design/data/models/label_font.dart';
 import 'package:barcode_labeler/features/design/data/models/label_item.dart';
 import 'package:barcode_labeler/features/design/data/models/label_value.dart';
 import 'package:barcode_labeler/features/printing/application/label_text_checker.dart';
@@ -5,12 +6,18 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'test_designs.dart';
 
-TextItem textBox({double width = 40, double height = 6, double size = 10}) {
+TextItem textBox({
+  double width = 40,
+  double height = 6,
+  double size = 10,
+  LabelFont font = LabelFont.roboto,
+}) {
   return TextItem(
     id: 'name',
     name: 'Name',
     frame: ItemFrame(x: 0, y: 0, width: width, height: height),
     value: const LabelValue(),
+    font: font,
     fontSizePt: size,
   );
 }
@@ -51,5 +58,34 @@ void main() {
     final problem = checker.problemWith(textBox(width: 80), 'शर्ट');
 
     expect(problem, contains('cannot be printed'));
+  });
+
+  test('a narrow font fits text that a normal font does not', () {
+    const text = 'Cotton shirt blue, size 42';
+
+    expect(checker.problemWith(textBox(width: 36), text), contains('too long'));
+    expect(
+      checker.problemWith(
+        textBox(width: 36, font: LabelFont.robotoCondensed),
+        text,
+      ),
+      isNull,
+    );
+  });
+
+  test('a bigger text size can make the same text too long', () {
+    const text = 'Cotton shirt';
+
+    expect(checker.problemWith(textBox(size: 10), text), isNull);
+    expect(checker.problemWith(textBox(size: 30), text), contains('too long'));
+  });
+
+  test('every shipped font has a normal and a bold file', () {
+    final fonts = readBundledFonts();
+
+    for (final font in LabelFont.values) {
+      expect(fonts.filesFor(font).regular, isNotEmpty, reason: font.label);
+      expect(fonts.filesFor(font).bold, isNotEmpty, reason: font.label);
+    }
   });
 }

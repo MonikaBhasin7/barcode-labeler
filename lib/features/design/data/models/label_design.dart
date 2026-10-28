@@ -1,5 +1,6 @@
 import '../../../../core/ids.dart';
 import '../../../../core/json_reading.dart';
+import 'label_font.dart';
 import 'label_item.dart';
 import 'label_value.dart';
 
@@ -202,6 +203,11 @@ class LabelDesign {
   };
 
   bool get usesExcelColumns => excelColumnsUsed.isNotEmpty;
+
+  Set<LabelFont> get fontsUsed => {
+    LabelFont.roboto,
+    for (final item in items.whereType<TextItem>()) item.font,
+  };
 
   List<SerialNumberSource> get serialNumberSources => [
     for (final item in items)

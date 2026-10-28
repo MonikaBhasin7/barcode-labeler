@@ -9,6 +9,7 @@ import '../../../core/units.dart';
 import '../../design/application/label_value_resolver.dart';
 import '../../design/application/sheet_geometry.dart';
 import '../../design/data/models/label_design.dart';
+import '../../design/data/models/label_font.dart';
 import '../../design/data/models/label_item.dart';
 import '../data/models/printer_offset.dart';
 import 'label_print_request.dart';
@@ -160,8 +161,8 @@ class _LabelDrawing {
   _LabelDrawing._({
     required this.design,
     required this.offset,
-    required this.regularFont,
-    required this.boldFont,
+    required this.fonts,
+    required this.barcodeNumberFont,
     required this.pictures,
     required this.resolver,
   });
@@ -170,8 +171,10 @@ class _LabelDrawing {
     return _LabelDrawing._(
       design: request.design,
       offset: request.offset,
-      regularFont: pw.Font.ttf(ByteData.sublistView(request.fonts.regular)),
-      boldFont: pw.Font.ttf(ByteData.sublistView(request.fonts.bold)),
+      fonts: request.fonts,
+      barcodeNumberFont: pw.Font.ttf(
+        ByteData.sublistView(request.fonts.barcodeNumberFiles.regular),
+      ),
       pictures: {
         for (final item in request.design.items.whereType<PictureItem>())
           item.id: pw.MemoryImage(item.imageBytes),
@@ -182,10 +185,19 @@ class _LabelDrawing {
 
   final LabelDesign design;
   final PrinterOffset offset;
-  final pw.Font regularFont;
-  final pw.Font boldFont;
+  final LabelFonts fonts;
+  final pw.Font barcodeNumberFont;
   final Map<String, pw.MemoryImage> pictures;
   final LabelValueResolver resolver;
+  final Map<(LabelFont, bool), pw.Font> _textFonts = {};
+
+  pw.Font _textFontFor(TextItem item) {
+    return _textFonts.putIfAbsent((item.font, item.bold), () {
+      final files = fonts.filesFor(item.font);
+      final bytes = item.bold ? files.bold : files.regular;
+      return pw.Font.ttf(ByteData.sublistView(bytes));
+    });
+  }
 
   Map<String, String> valuesFor(LabelValueContext context) {
     return {
@@ -269,7 +281,7 @@ class _LabelDrawing {
           TextAlignment.right => pw.TextAlign.right,
         },
         style: pw.TextStyle(
-          font: item.bold ? boldFont : regularFont,
+          font: _textFontFor(item),
           fontSize: item.fontSizePt,
           color: PdfColors.black,
         ),
@@ -307,7 +319,10 @@ class _LabelDrawing {
       width: width,
       height: height,
       drawText: item.drawsTextUnderBars,
-      textStyle: pw.TextStyle(font: regularFont, fontSize: item.textSizePt),
+      textStyle: pw.TextStyle(
+        font: barcodeNumberFont,
+        fontSize: item.textSizePt,
+      ),
       textPadding: barcodeTextGapMm * pointsPerMm,
     );
   }
@@ -323,7 +338,7 @@ class _LabelDrawing {
       child: pw.Text(
         'Wrong value',
         style: pw.TextStyle(
-          font: regularFont,
+          font: barcodeNumberFont,
           fontSize: 6,
           color: PdfColors.red,
         ),

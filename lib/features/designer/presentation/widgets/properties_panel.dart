@@ -4,6 +4,7 @@ import 'package:path/path.dart' as p;
 
 import '../../../../core/settings/app_settings_store.dart';
 import '../../../design/data/models/barcode_type.dart';
+import '../../../design/data/models/label_font.dart';
 import '../../../design/data/models/label_item.dart';
 import '../../application/designer_controller.dart';
 import 'property_fields.dart';
@@ -298,6 +299,14 @@ class _ItemProperties extends StatelessWidget {
       PanelSection(
         title: 'Look',
         children: [
+          DropdownField<LabelFont>(
+            label: 'Font',
+            value: text.font,
+            options: LabelFont.values,
+            optionLabel: (font) => font.label,
+            optionStyle: (font) => TextStyle(fontFamily: font.familyName),
+            onChanged: (font) => _change(text.copyWith(font: font), 'font'),
+          ),
           FieldPair(
             first: NumberField(
               label: 'Text size',
