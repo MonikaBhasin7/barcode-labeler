@@ -24,6 +24,10 @@ Work Sans
   Copyright 2019 The Work Sans Project Authors (https://github.com/weiweihuanghuang/Work-Sans)
   Licensed under the SIL Open Font License, Version 1.1 (full text below).
 
+Tinos
+  Copyright 2026 The Tinos Project Authors (https://github.com/googlefonts/tinos)
+  Licensed under the SIL Open Font License, Version 1.1 (full text below).
+
 -----------------------------------------------------------
 SIL OPEN FONT LICENSE Version 1.1 - 26 February 2007
 -----------------------------------------------------------

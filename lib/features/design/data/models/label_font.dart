@@ -6,7 +6,8 @@ enum LabelFont {
   montserrat('Montserrat (wide)', 'Montserrat'),
   libreFranklin('Libre Franklin', 'LibreFranklin'),
   rubik('Rubik (rounded)', 'Rubik'),
-  workSans('Work Sans', 'WorkSans');
+  workSans('Work Sans', 'WorkSans'),
+  tinos('Tinos (like Times New Roman)', 'Tinos');
 
   const LabelFont(this.label, this.familyName);
 
