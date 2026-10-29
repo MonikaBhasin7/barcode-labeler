@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:printing/printing.dart';
 
+import '../../../core/fonts/installed_fonts.dart';
 import '../../../core/settings/app_settings_store.dart';
 import '../../designer/application/designer_controller.dart';
 import '../application/print_controller.dart';
@@ -20,6 +21,7 @@ class _PrintScreenState extends State<PrintScreen> {
   late final PrintController _controller = PrintController(
     designer: widget.designer,
     settings: Get.find<AppSettingsStore>(),
+    installedFonts: Get.find<InstalledFonts>(),
   );
 
   @override

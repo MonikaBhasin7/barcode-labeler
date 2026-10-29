@@ -10,7 +10,7 @@ TextItem textBox({
   double width = 40,
   double height = 6,
   double size = 10,
-  LabelFont font = LabelFont.roboto,
+  TextFont font = robotoFont,
 }) {
   return TextItem(
     id: 'name',
@@ -60,13 +60,22 @@ void main() {
     expect(problem, contains('cannot be printed'));
   });
 
+  test('right-to-left letters are reported even when the font has them', () {
+    final problem = checker.problemWith(
+      textBox(width: 80, font: const BuiltInFont(LabelFont.tinos)),
+      'שלום',
+    );
+
+    expect(problem, contains('cannot be printed'));
+  });
+
   test('a narrow font fits text that a normal font does not', () {
     const text = 'Cotton shirt blue, size 42';
 
     expect(checker.problemWith(textBox(width: 36), text), contains('too long'));
     expect(
       checker.problemWith(
-        textBox(width: 36, font: LabelFont.robotoCondensed),
+        textBox(width: 36, font: const BuiltInFont(LabelFont.robotoCondensed)),
         text,
       ),
       isNull,
@@ -84,8 +93,9 @@ void main() {
     final fonts = readBundledFonts();
 
     for (final font in LabelFont.values) {
-      expect(fonts.filesFor(font).regular, isNotEmpty, reason: font.label);
-      expect(fonts.filesFor(font).bold, isNotEmpty, reason: font.label);
+      final files = fonts.filesFor(BuiltInFont(font));
+      expect(files.regular, isNotEmpty, reason: font.label);
+      expect(files.bold, isNotEmpty, reason: font.label);
     }
   });
 }

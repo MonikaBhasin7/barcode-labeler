@@ -204,8 +204,8 @@ class LabelDesign {
 
   bool get usesExcelColumns => excelColumnsUsed.isNotEmpty;
 
-  Set<LabelFont> get fontsUsed => {
-    LabelFont.roboto,
+  Set<TextFont> get fontsUsed => {
+    robotoFont,
     for (final item in items.whereType<TextItem>()) item.font,
   };
 

@@ -34,8 +34,8 @@ void main() {
     expect(jsonEncode(reopened.toJson()), jsonEncode(design.toJson()));
     expect(reopened.dataFile?.path, r'C:\Labels\E7.xlsx');
     expect(reopened.items.whereType<TextItem>().map((text) => text.font), [
-      LabelFont.roboto,
-      LabelFont.robotoCondensed,
+      const BuiltInFont(LabelFont.roboto),
+      const BuiltInFont(LabelFont.robotoCondensed),
     ]);
     expect((reopened.items.last as PictureItem).imageBytes, [1, 2, 3, 4]);
   });
@@ -108,6 +108,31 @@ void main() {
       'value': {'kind': 'fixedText', 'fixedText': 'Hi'},
     });
 
-    expect(text.font, LabelFont.roboto);
+    expect(text.font, robotoFont);
+  });
+
+  test('a font from this PC is saved by its name', () {
+    const text = TextItem(
+      id: 'name',
+      name: 'Name',
+      frame: ItemFrame(x: 0, y: 0, width: 40, height: 8),
+      value: LabelValue(),
+      font: InstalledFont('Arial'),
+      bold: true,
+    );
+
+    final json = jsonDecode(jsonEncode(text.toJson())) as Map<String, dynamic>;
+    final reopened = TextItem.fromJson(json);
+
+    expect(json['installedFont'], 'Arial');
+    expect(json.containsKey('font'), isFalse);
+    expect(reopened.font, const InstalledFont('Arial'));
+    expect(reopened.bold, isTrue);
+  });
+
+  test('a font from this PC never hides a built-in font', () {
+    expect(isBuiltInFontName('Roboto Condensed'), isTrue);
+    expect(isBuiltInFontName('tinos'), isTrue);
+    expect(isBuiltInFontName('Arial'), isFalse);
   });
 }

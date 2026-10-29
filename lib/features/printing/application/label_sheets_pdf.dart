@@ -189,7 +189,7 @@ class _LabelDrawing {
   final pw.Font barcodeNumberFont;
   final Map<String, pw.MemoryImage> pictures;
   final LabelValueResolver resolver;
-  final Map<(LabelFont, bool), pw.Font> _textFonts = {};
+  final Map<(TextFont, bool), pw.Font> _textFonts = {};
 
   pw.Font _textFontFor(TextItem item) {
     return _textFonts.putIfAbsent((item.font, item.bold), () {

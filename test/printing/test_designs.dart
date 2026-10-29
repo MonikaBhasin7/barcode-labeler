@@ -11,7 +11,7 @@ import 'package:barcode_labeler/features/printing/data/models/printer_offset.dar
 LabelFonts readBundledFonts() {
   return LabelFonts({
     for (final font in LabelFont.values)
-      font: FontFiles(
+      BuiltInFont(font): FontFiles(
         regular: File(font.regularAsset).readAsBytesSync(),
         bold: File(font.boldAsset).readAsBytesSync(),
       ),
@@ -74,7 +74,7 @@ const LabelDesign stockLabelDesign = LabelDesign(
       name: 'Date',
       frame: ItemFrame(x: 4, y: 38, width: 40, height: 8),
       value: LabelValue(kind: ValueSourceKind.date, prefix: 'Packed '),
-      font: LabelFont.robotoCondensed,
+      font: BuiltInFont(LabelFont.robotoCondensed),
       fontSizePt: 8,
     ),
     ShapeItem(

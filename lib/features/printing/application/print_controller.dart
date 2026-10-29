@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:math' as math;
 
 import 'package:file_picker/file_picker.dart';
@@ -7,6 +8,7 @@ import 'package:get/get.dart';
 import 'package:printing/printing.dart';
 
 import '../../../core/file_names.dart';
+import '../../../core/fonts/installed_fonts.dart';
 import '../../../core/settings/app_settings_store.dart';
 import '../../design/application/label_value_resolver.dart';
 import '../../design/data/models/label_design.dart';
@@ -48,10 +50,15 @@ class _ChosenRecords {
 }
 
 class PrintController extends GetxController {
-  PrintController({required this.designer, required this.settings});
+  PrintController({
+    required this.designer,
+    required this.settings,
+    required this.installedFonts,
+  });
 
   final DesignerController designer;
   final AppSettingsStore settings;
+  final InstalledFonts installedFonts;
 
   final Rx<RowChoice> rowChoice = RowChoice.all.obs;
   final RxInt rowsFrom = 1.obs;
@@ -306,12 +313,30 @@ class PrintController extends GetxController {
 
   Future<void> _loadFontsThenPreview() async {
     _fonts = LabelFonts({
-      for (final font in LabelFont.values) font: await _filesOf(font),
+      for (final font in LabelFont.values)
+        BuiltInFont(font): await _builtInFilesOf(font),
+      ...await _installedFontFilesUsedByDesign(),
     });
     schedulePreview(immediately: true);
   }
 
-  Future<FontFiles> _filesOf(LabelFont font) async {
+  Future<Map<TextFont, FontFiles>> _installedFontFilesUsedByDesign() async {
+    final used = design.fontsUsed.whereType<InstalledFont>().toList();
+    if (used.isEmpty) return const {};
+    await installedFonts.lookAgain();
+    final filesByFont = <TextFont, FontFiles>{};
+    for (final font in used) {
+      try {
+        final files = await installedFonts.filesOf(font);
+        if (files != null) filesByFont[font] = files;
+      } on FileSystemException {
+        continue;
+      }
+    }
+    return filesByFont;
+  }
+
+  Future<FontFiles> _builtInFilesOf(LabelFont font) async {
     final regular = await rootBundle.load(font.regularAsset);
     final bold = await rootBundle.load(font.boldAsset);
     return FontFiles(

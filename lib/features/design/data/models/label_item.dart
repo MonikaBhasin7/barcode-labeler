@@ -147,7 +147,7 @@ class TextItem extends LabelItem {
     required super.frame,
     super.rotation = QuarterTurn.none,
     required this.value,
-    this.font = LabelFont.roboto,
+    this.font = robotoFont,
     this.fontSizePt = 12,
     this.bold = false,
     this.alignment = TextAlignment.left,
@@ -160,7 +160,7 @@ class TextItem extends LabelItem {
       frame: _readFrame(json),
       rotation: _readRotation(json),
       value: LabelValue.fromJson(readMap(json, 'value')),
-      font: readEnum(LabelFont.values, json['font'], LabelFont.roboto),
+      font: TextFont.fromJson(json),
       fontSizePt: readDouble(json, 'fontSizePt', 12),
       bold: readBool(json, 'bold', false),
       alignment: readEnum(
@@ -172,7 +172,7 @@ class TextItem extends LabelItem {
   }
 
   final LabelValue value;
-  final LabelFont font;
+  final TextFont font;
   final double fontSizePt;
   final bool bold;
   final TextAlignment alignment;
@@ -185,7 +185,7 @@ class TextItem extends LabelItem {
 
   TextItem copyWith({
     LabelValue? value,
-    LabelFont? font,
+    TextFont? font,
     double? fontSizePt,
     bool? bold,
     TextAlignment? alignment,
@@ -227,7 +227,7 @@ class TextItem extends LabelItem {
   Map<String, dynamic> toJson() => {
     ...commonJson('text'),
     'value': value.toJson(),
-    'font': font.name,
+    ...font.toJson(),
     'fontSizePt': fontSizePt,
     'bold': bold,
     'alignment': alignment.name,

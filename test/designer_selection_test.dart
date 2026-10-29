@@ -1,3 +1,4 @@
+import 'package:barcode_labeler/core/fonts/installed_fonts.dart';
 import 'package:barcode_labeler/core/settings/app_settings_store.dart';
 import 'package:barcode_labeler/features/design/data/models/label_design.dart';
 import 'package:barcode_labeler/features/design/data/models/label_item.dart';
@@ -61,6 +62,7 @@ void main() {
   setUp(() async {
     SharedPreferences.setMockInitialValues({});
     Get.put(AppSettingsStore(await SharedPreferences.getInstance()));
+    Get.put(InstalledFonts(folders: const []));
   });
 
   tearDown(Get.reset);

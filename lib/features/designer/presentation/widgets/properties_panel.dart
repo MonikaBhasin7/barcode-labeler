@@ -7,6 +7,7 @@ import '../../../design/data/models/barcode_type.dart';
 import '../../../design/data/models/label_font.dart';
 import '../../../design/data/models/label_item.dart';
 import '../../application/designer_controller.dart';
+import 'font_picker.dart';
 import 'property_fields.dart';
 import 'value_source_editor.dart';
 
@@ -299,13 +300,16 @@ class _ItemProperties extends StatelessWidget {
       PanelSection(
         title: 'Look',
         children: [
-          DropdownField<LabelFont>(
-            label: 'Font',
-            value: text.font,
-            options: LabelFont.values,
-            optionLabel: (font) => font.label,
-            optionStyle: (font) => TextStyle(fontFamily: font.familyName),
-            onChanged: (font) => _change(text.copyWith(font: font), 'font'),
+          FontField(
+            font: text.font,
+            installedFonts: controller.installedFonts,
+            onChanged: (font) => _change(
+              text.copyWith(
+                font: font,
+                bold: text.bold && controller.installedFonts.hasBold(font),
+              ),
+              'font',
+            ),
           ),
           FieldPair(
             first: NumberField(
@@ -317,11 +321,15 @@ class _ItemProperties extends StatelessWidget {
               onChanged: (size) =>
                   _change(text.copyWith(fontSizePt: size), 'fontSize'),
             ),
-            second: FilterChip(
-              label: const Text('Bold'),
-              selected: text.bold,
-              onSelected: (bold) => _change(text.copyWith(bold: bold), 'bold'),
-            ),
+            second: switch (text.font) {
+              BuiltInFont() => _boldChip(text, fontHasBold: true),
+              final InstalledFont installed => Obx(
+                () => _boldChip(
+                  text,
+                  fontHasBold: controller.installedFonts.hasBold(installed),
+                ),
+              ),
+            },
           ),
           SegmentedButton<TextAlignment>(
             showSelectedIcon: false,
@@ -336,6 +344,16 @@ class _ItemProperties extends StatelessWidget {
         ],
       ),
     ];
+  }
+
+  Widget _boldChip(TextItem text, {required bool fontHasBold}) {
+    return FilterChip(
+      label: Text(fontHasBold ? 'Bold' : 'No bold'),
+      selected: text.bold && fontHasBold,
+      onSelected: fontHasBold
+          ? (bold) => _change(text.copyWith(bold: bold), 'bold')
+          : null,
+    );
   }
 
   List<Widget> _barcodeSections(BuildContext context, BarcodeItem barcode) {

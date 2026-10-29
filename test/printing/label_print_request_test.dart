@@ -1,7 +1,9 @@
 import 'package:barcode_labeler/features/design/data/models/barcode_type.dart';
+import 'package:barcode_labeler/features/design/data/models/label_font.dart';
 import 'package:barcode_labeler/features/design/data/models/label_item.dart';
 import 'package:barcode_labeler/features/design/data/models/label_value.dart';
 import 'package:barcode_labeler/features/printing/application/label_print_request.dart';
+import 'package:barcode_labeler/features/printing/data/models/printer_offset.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'test_designs.dart';
@@ -21,6 +23,39 @@ void main() {
     );
 
     expect(problems, isEmpty);
+  });
+
+  test('a font that is not on this PC stops printing', () {
+    final request = stockPrintRequest();
+    final design = request.design.copyWith(
+      items: [
+        for (final item in request.design.items)
+          item is TextItem
+              ? item.copyWith(font: const InstalledFont('Calibri'))
+              : item,
+      ],
+    );
+
+    final problems = findPrintProblems(
+      LabelPrintRequest(
+        design: design,
+        records: request.records,
+        recordNumbers: request.recordNumbers,
+        copiesPerRecord: 1,
+        startAtPosition: 1,
+        serialStarts: const {},
+        typedAnswers: const {},
+        offset: PrinterOffset.none,
+        today: request.today,
+        fonts: request.fonts,
+      ),
+      availableColumns: const ['Name', 'Code'],
+    );
+
+    expect(problems, [
+      'The font "Calibri" is not on this PC, or it cannot be printed. '
+          'Install the font on this PC, or choose another font.',
+    ]);
   });
 
   test('a column missing from the Excel sheet is reported', () {

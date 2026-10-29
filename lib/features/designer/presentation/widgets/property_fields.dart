@@ -261,7 +261,6 @@ class DropdownField<T> extends StatelessWidget {
     required this.options,
     required this.optionLabel,
     required this.onChanged,
-    this.optionStyle,
   });
 
   final String label;
@@ -269,7 +268,6 @@ class DropdownField<T> extends StatelessWidget {
   final List<T> options;
   final String Function(T option) optionLabel;
   final ValueChanged<T> onChanged;
-  final TextStyle Function(T option)? optionStyle;
 
   @override
   Widget build(BuildContext context) {
@@ -282,11 +280,7 @@ class DropdownField<T> extends StatelessWidget {
         for (final option in options)
           DropdownMenuItem(
             value: option,
-            child: Text(
-              optionLabel(option),
-              style: optionStyle?.call(option),
-              overflow: TextOverflow.ellipsis,
-            ),
+            child: Text(optionLabel(option), overflow: TextOverflow.ellipsis),
           ),
       ],
       onChanged: (option) {

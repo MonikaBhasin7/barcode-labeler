@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:get/get.dart';
 import 'package:path/path.dart' as p;
 
+import '../../../core/fonts/installed_fonts.dart';
 import '../../../core/settings/app_settings_store.dart';
 import '../../../core/units.dart';
 import '../../design/data/design_file_store.dart';
@@ -22,12 +23,14 @@ class DesignerController extends GetxController {
     required this.designFiles,
     required this.spreadsheets,
     required this.settings,
+    required this.installedFonts,
   }) : design = initialDesign.obs,
        filePath = RxnString(initialFilePath);
 
   final DesignFileStore designFiles;
   final SpreadsheetReader spreadsheets;
   final AppSettingsStore settings;
+  final InstalledFonts installedFonts;
 
   final Rx<LabelDesign> design;
   final RxnString filePath;
@@ -39,11 +42,32 @@ class DesignerController extends GetxController {
   final RxnString dataFileProblem = RxnString();
   final RxBool snapToGrid = true.obs;
 
+  final List<Worker> _workers = [];
   final List<LabelDesign> _undoHistory = [];
   final List<LabelDesign> _redoHistory = [];
   String? _lastChangeKey;
   int _gestureCount = 0;
   DateTime? _dataFileModifiedAt;
+
+  @override
+  void onInit() {
+    super.onInit();
+    _workers.add(
+      everAll([
+        design,
+        installedFonts.families,
+      ], (_) => _showDesignFontsOnScreen()),
+    );
+    _showDesignFontsOnScreen();
+  }
+
+  @override
+  void onClose() {
+    for (final worker in _workers) {
+      worker.dispose();
+    }
+    super.onClose();
+  }
 
   LabelItem? get selectedItem {
     final id = selectedItemId.value;
@@ -303,6 +327,10 @@ class DesignerController extends GetxController {
       return;
     }
     loadLinkedDataFile();
+  }
+
+  void _showDesignFontsOnScreen() {
+    installedFonts.showOnScreen(design.value.fontsUsed);
   }
 
   void _refreshUndoFlags() {

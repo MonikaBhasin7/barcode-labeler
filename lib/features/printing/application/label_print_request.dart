@@ -23,18 +23,20 @@ class FontFiles {
 class LabelFonts {
   const LabelFonts(this.filesByFont);
 
-  final Map<LabelFont, FontFiles> filesByFont;
+  final Map<TextFont, FontFiles> filesByFont;
 
-  FontFiles filesFor(LabelFont font) {
-    return filesByFont[font] ?? filesByFont[LabelFont.roboto]!;
+  bool has(TextFont font) => filesByFont.containsKey(font);
+
+  FontFiles filesFor(TextFont font) {
+    return filesByFont[font] ?? filesByFont[robotoFont]!;
   }
 
-  FontFiles get barcodeNumberFiles => filesFor(LabelFont.roboto);
+  FontFiles get barcodeNumberFiles => filesFor(robotoFont);
 
-  LabelFonts onlyFor(Set<LabelFont> fonts) {
+  LabelFonts onlyFor(Set<TextFont> fonts) {
     return LabelFonts({
       for (final entry in filesByFont.entries)
-        if (fonts.contains(entry.key) || entry.key == LabelFont.roboto)
+        if (fonts.contains(entry.key) || entry.key == robotoFont)
           entry.key: entry.value,
     });
   }
@@ -132,6 +134,7 @@ List<String> findPrintProblems(
       'Start at must be a label number from 1 to $perSheet.',
     ...unanswered,
     ..._missingColumnProblems(request.design, availableColumns),
+    ..._missingFontProblems(request),
     if (unanswered.isEmpty) ..._valueProblems(request),
   ];
 }
@@ -152,6 +155,15 @@ List<String> _missingColumnProblems(
     for (final column in design.excelColumnsUsed)
       if (!availableColumns.contains(column))
         'The Excel sheet has no column named "$column".',
+  ];
+}
+
+List<String> _missingFontProblems(LabelPrintRequest request) {
+  return [
+    for (final font in request.design.fontsUsed)
+      if (!request.fonts.has(font))
+        'The font "${font.name}" is not on this PC, or it cannot be printed. '
+            'Install the font on this PC, or choose another font.',
   ];
 }
 

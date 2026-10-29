@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:path/path.dart' as p;
 
+import '../../../core/fonts/installed_fonts.dart';
 import '../../../core/settings/app_settings_store.dart';
 import '../../design/data/design_file_store.dart';
 import '../../design/data/models/label_design.dart';
@@ -44,12 +45,14 @@ class _DesignerScreenState extends State<DesignerScreen> {
     designFiles: const DesignFileStore(),
     spreadsheets: const SpreadsheetReader(),
     settings: Get.find<AppSettingsStore>(),
+    installedFonts: Get.find<InstalledFonts>(),
   );
   late final AppLifecycleListener _appLifecycle;
 
   @override
   void initState() {
     super.initState();
+    _controller.onInit();
     _appLifecycle = AppLifecycleListener(
       onExitRequested: _answerAppExitRequest,
     );
@@ -62,6 +65,7 @@ class _DesignerScreenState extends State<DesignerScreen> {
   @override
   void dispose() {
     _appLifecycle.dispose();
+    _controller.onClose();
     super.dispose();
   }
 

@@ -4,6 +4,8 @@ import 'dart:typed_data';
 
 import 'package:barcode_labeler/features/design/data/models/label_design.dart';
 import 'package:barcode_labeler/features/design/data/models/label_font.dart';
+import 'package:barcode_labeler/features/design/data/models/label_item.dart';
+import 'package:barcode_labeler/features/printing/application/label_print_request.dart';
 import 'package:barcode_labeler/features/printing/application/label_sheets_pdf.dart';
 import 'package:barcode_labeler/features/printing/data/models/printer_offset.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -68,8 +70,42 @@ void main() {
     final fonts = readBundledFonts().onlyFor(stockLabelDesign.fontsUsed);
 
     expect(fonts.filesByFont.keys.toSet(), {
-      LabelFont.roboto,
-      LabelFont.robotoCondensed,
+      robotoFont,
+      const BuiltInFont(LabelFont.robotoCondensed),
     });
+  });
+
+  test('text in a font from this PC is printed with that font', () async {
+    final lato = File(LabelFont.lato.regularAsset).readAsBytesSync();
+    const latoFromPc = InstalledFont('Lato from this PC');
+    final design = stockLabelDesign.copyWith(
+      items: [
+        for (final item in stockLabelDesign.items)
+          item is TextItem ? item.copyWith(font: latoFromPc) : item,
+      ],
+    );
+    final request = stockPrintRequest();
+    final fonts = LabelFonts({
+      ...request.fonts.filesByFont,
+      latoFromPc: FontFiles(regular: lato, bold: lato),
+    });
+
+    final pdf = await buildLabelSheetsPdf(
+      LabelPrintRequest(
+        design: design,
+        records: request.records,
+        recordNumbers: request.recordNumbers,
+        copiesPerRecord: 1,
+        startAtPosition: 1,
+        serialStarts: const {},
+        typedAnswers: const {},
+        offset: PrinterOffset.none,
+        today: request.today,
+        fonts: fonts.onlyFor(design.fontsUsed),
+      ),
+    );
+
+    expect(latin1.decode(pdf), contains('Lato-Regular'));
+    expect(latin1.decode(pdf), isNot(contains('RobotoCondensed')));
   });
 }

@@ -23,7 +23,11 @@ tested on a Mac, and installed on Windows.
   which looks like Times New Roman), each with
   normal and bold, plus a text size. They are embedded in the PDF, so a
   label looks the same on every computer. Licences:
-  `assets/fonts/FONT_LICENSES.txt`.
+  `assets/fonts/FONT_LICENSES.txt`. Fonts installed on the PC (Windows
+  Fonts folders, or the Mac font folders) can be chosen too; the design
+  saves the font's name, and printing stops with a message on a PC that
+  does not have it. Fonts with the other kind of outlines (most `.otf`
+  files) cannot be printed and are shown greyed out.
 - **Units:** mm, cm or inches (Settings). Designs are always stored in mm.
 - **Excel:** `.xlsx` and `.csv`, read in the background. Formula cells show
   their result, and number and date formats (`000123`, `"LOT-"000`,
