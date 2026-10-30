@@ -218,6 +218,9 @@ class _LabelCanvasState extends State<LabelCanvas> {
                         item: item,
                         value: previewValues[item.id] ?? '',
                         pixelsPerMm: pixelsPerMm,
+                        numberSpacing: item is BarcodeItem
+                            ? _controller.barcodeNumberSpacings[item.numberFont]
+                            : null,
                       ),
                     ),
                   ),

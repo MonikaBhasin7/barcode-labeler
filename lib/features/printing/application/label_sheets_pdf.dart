@@ -12,6 +12,7 @@ import '../../design/data/models/label_design.dart';
 import '../../design/data/models/label_font.dart';
 import '../../design/data/models/label_item.dart';
 import '../data/models/printer_offset.dart';
+import 'barcode_number_spacing.dart';
 import 'label_print_request.dart';
 
 const double barcodeTextGapMm = 0.5;
@@ -185,6 +186,7 @@ class _LabelDrawing {
   final Map<String, pw.MemoryImage> pictures;
   final LabelValueResolver resolver;
   final Map<(TextFont, bool), pw.Font> _pdfFonts = {};
+  final Map<TextFont, BarcodeNumberSpacing> _numberSpacings = {};
 
   pw.Font _pdfFontFor(TextFont textFont, {required bool bold}) {
     return _pdfFonts.putIfAbsent((textFont, bold), () {
@@ -192,6 +194,17 @@ class _LabelDrawing {
       final bytes = bold ? files.bold : files.regular;
       return pw.Font.ttf(ByteData.sublistView(bytes));
     });
+  }
+
+  double _numberGapFor(BarcodeItem item) {
+    final gap = barcodeTextGapMm * pointsPerMm;
+    if (!item.drawsTextUnderBars) return gap;
+    final spacing = _numberSpacings.putIfAbsent(
+      item.numberFont,
+      () =>
+          BarcodeNumberSpacing.ofFont(fonts.filesFor(item.numberFont).regular),
+    );
+    return gap + spacing.extraGapEm * item.textSizePt;
   }
 
   Map<String, String> valuesFor(LabelValueContext context) {
@@ -318,7 +331,7 @@ class _LabelDrawing {
         font: _pdfFontFor(item.numberFont, bold: false),
         fontSize: item.textSizePt,
       ),
-      textPadding: barcodeTextGapMm * pointsPerMm,
+      textPadding: _numberGapFor(item),
     );
   }
 

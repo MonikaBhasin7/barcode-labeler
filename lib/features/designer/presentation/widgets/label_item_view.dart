@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/units.dart';
 import '../../../design/data/models/label_item.dart';
+import '../../../printing/application/barcode_number_spacing.dart';
 import '../../../printing/application/label_sheets_pdf.dart';
 
 class LabelItemView extends StatelessWidget {
@@ -13,11 +14,13 @@ class LabelItemView extends StatelessWidget {
     required this.item,
     required this.value,
     required this.pixelsPerMm,
+    this.numberSpacing,
   });
 
   final LabelItem item;
   final String value;
   final double pixelsPerMm;
+  final BarcodeNumberSpacing? numberSpacing;
 
   double _pointsToPixels(double points) => points * mmPerPoint * pixelsPerMm;
 
@@ -88,17 +91,41 @@ class LabelItemView extends StatelessWidget {
         },
       );
     }
+    final numberSizePx = _pointsToPixels(barcode.textSizePt);
     return BarcodeWidget(
       barcode: barcode.type.barcode,
       data: value,
       drawText: barcode.drawsTextUnderBars,
-      textPadding: barcodeTextGapMm * pixelsPerMm,
-      style: TextStyle(
-        fontFamily: barcode.numberFont.screenFamily,
-        fontFamilyFallback: const ['Roboto'],
-        fontSize: _pointsToPixels(barcode.textSizePt),
-        color: Colors.black,
+      textPadding:
+          barcodeTextGapMm * pixelsPerMm +
+          (numberSpacing?.extraGapEm ?? 0) * numberSizePx,
+      style: _placedLikePrint(
+        TextStyle(
+          fontFamily: barcode.numberFont.screenFamily,
+          fontFamilyFallback: const ['Roboto'],
+          fontSize: numberSizePx,
+          color: Colors.black,
+        ),
       ),
+    );
+  }
+
+  TextStyle _placedLikePrint(TextStyle style) {
+    final spacing = numberSpacing;
+    if (spacing == null) return style;
+    final painter = TextPainter(
+      text: TextSpan(text: '0', style: style),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    final line = painter.computeLineMetrics().first;
+    painter.dispose();
+    if (line.ascent <= line.descent) return style;
+    return style.copyWith(
+      height:
+          spacing.baselineEm *
+          (line.ascent + line.descent) /
+          (line.ascent - line.descent),
+      leadingDistribution: TextLeadingDistribution.proportional,
     );
   }
 }

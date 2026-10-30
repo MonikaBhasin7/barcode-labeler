@@ -1,6 +1,6 @@
 import 'dart:io';
-import 'dart:typed_data';
 
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:path/path.dart' as p;
 
@@ -9,7 +9,9 @@ import '../../../core/settings/app_settings_store.dart';
 import '../../../core/units.dart';
 import '../../design/data/design_file_store.dart';
 import '../../design/data/models/label_design.dart';
+import '../../design/data/models/label_font.dart';
 import '../../design/data/models/label_item.dart';
+import '../../printing/application/barcode_number_spacing.dart';
 import '../../spreadsheet/data/models/spreadsheet_table.dart';
 import '../../spreadsheet/data/spreadsheet_reader.dart';
 import 'new_label_items.dart';
@@ -41,8 +43,11 @@ class DesignerController extends GetxController {
   final Rxn<SpreadsheetTable> dataTable = Rxn<SpreadsheetTable>();
   final RxnString dataFileProblem = RxnString();
   final RxBool snapToGrid = true.obs;
+  final RxMap<TextFont, BarcodeNumberSpacing> barcodeNumberSpacings =
+      <TextFont, BarcodeNumberSpacing>{}.obs;
 
   final List<Worker> _workers = [];
+  final Set<TextFont> _numberFontsBeingMeasured = {};
   final List<LabelDesign> _undoHistory = [];
   final List<LabelDesign> _redoHistory = [];
   String? _lastChangeKey;
@@ -56,9 +61,9 @@ class DesignerController extends GetxController {
       everAll([
         design,
         installedFonts.families,
-      ], (_) => _showDesignFontsOnScreen()),
+      ], (_) => _prepareDesignFontsForScreen()),
     );
-    _showDesignFontsOnScreen();
+    _prepareDesignFontsForScreen();
   }
 
   @override
@@ -329,8 +334,37 @@ class DesignerController extends GetxController {
     loadLinkedDataFile();
   }
 
-  void _showDesignFontsOnScreen() {
+  void _prepareDesignFontsForScreen() {
     installedFonts.showOnScreen(design.value.fontsUsed);
+    _measureBarcodeNumberFonts();
+  }
+
+  Future<void> _measureBarcodeNumberFonts() async {
+    for (final font in design.value.barcodeNumberFonts) {
+      if (barcodeNumberSpacings.containsKey(font)) continue;
+      if (!_numberFontsBeingMeasured.add(font)) continue;
+      try {
+        final bytes = await _regularFontBytesOf(font);
+        if (bytes != null) {
+          barcodeNumberSpacings[font] = BarcodeNumberSpacing.ofFont(bytes);
+        }
+      } on Object {
+        continue;
+      } finally {
+        _numberFontsBeingMeasured.remove(font);
+      }
+    }
+  }
+
+  Future<Uint8List?> _regularFontBytesOf(TextFont font) async {
+    return switch (font) {
+      BuiltInFont(:final font) => (await rootBundle.load(
+        font.regularAsset,
+      )).buffer.asUint8List(),
+      final InstalledFont installed => (await installedFonts.filesOf(
+        installed,
+      ))?.regular,
+    };
   }
 
   void _refreshUndoFlags() {

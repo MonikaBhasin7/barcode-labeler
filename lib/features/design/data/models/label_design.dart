@@ -206,11 +206,13 @@ class LabelDesign {
 
   Set<TextFont> get fontsUsed => {
     robotoFont,
-    for (final item in items)
-      if (item is TextItem)
-        item.font
-      else if (item is BarcodeItem && item.drawsTextUnderBars)
-        item.numberFont,
+    for (final item in items.whereType<TextItem>()) item.font,
+    ...barcodeNumberFonts,
+  };
+
+  Set<TextFont> get barcodeNumberFonts => {
+    for (final item in items.whereType<BarcodeItem>())
+      if (item.drawsTextUnderBars) item.numberFont,
   };
 
   List<SerialNumberSource> get serialNumberSources => [
