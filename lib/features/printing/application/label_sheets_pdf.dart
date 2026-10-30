@@ -162,7 +162,6 @@ class _LabelDrawing {
     required this.design,
     required this.offset,
     required this.fonts,
-    required this.barcodeNumberFont,
     required this.pictures,
     required this.resolver,
   });
@@ -172,9 +171,6 @@ class _LabelDrawing {
       design: request.design,
       offset: request.offset,
       fonts: request.fonts,
-      barcodeNumberFont: pw.Font.ttf(
-        ByteData.sublistView(request.fonts.barcodeNumberFiles.regular),
-      ),
       pictures: {
         for (final item in request.design.items.whereType<PictureItem>())
           item.id: pw.MemoryImage(item.imageBytes),
@@ -186,15 +182,14 @@ class _LabelDrawing {
   final LabelDesign design;
   final PrinterOffset offset;
   final LabelFonts fonts;
-  final pw.Font barcodeNumberFont;
   final Map<String, pw.MemoryImage> pictures;
   final LabelValueResolver resolver;
-  final Map<(TextFont, bool), pw.Font> _textFonts = {};
+  final Map<(TextFont, bool), pw.Font> _pdfFonts = {};
 
-  pw.Font _textFontFor(TextItem item) {
-    return _textFonts.putIfAbsent((item.font, item.bold), () {
-      final files = fonts.filesFor(item.font);
-      final bytes = item.bold ? files.bold : files.regular;
+  pw.Font _pdfFontFor(TextFont textFont, {required bool bold}) {
+    return _pdfFonts.putIfAbsent((textFont, bold), () {
+      final files = fonts.filesFor(textFont);
+      final bytes = bold ? files.bold : files.regular;
       return pw.Font.ttf(ByteData.sublistView(bytes));
     });
   }
@@ -281,7 +276,7 @@ class _LabelDrawing {
           TextAlignment.right => pw.TextAlign.right,
         },
         style: pw.TextStyle(
-          font: _textFontFor(item),
+          font: _pdfFontFor(item.font, bold: item.bold),
           fontSize: item.fontSizePt,
           color: PdfColors.black,
         ),
@@ -320,7 +315,7 @@ class _LabelDrawing {
       height: height,
       drawText: item.drawsTextUnderBars,
       textStyle: pw.TextStyle(
-        font: barcodeNumberFont,
+        font: _pdfFontFor(item.numberFont, bold: false),
         fontSize: item.textSizePt,
       ),
       textPadding: barcodeTextGapMm * pointsPerMm,
@@ -338,7 +333,7 @@ class _LabelDrawing {
       child: pw.Text(
         'Wrong value',
         style: pw.TextStyle(
-          font: barcodeNumberFont,
+          font: _pdfFontFor(robotoFont, bold: false),
           fontSize: 6,
           color: PdfColors.red,
         ),

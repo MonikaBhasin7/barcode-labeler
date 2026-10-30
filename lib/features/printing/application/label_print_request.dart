@@ -31,7 +31,7 @@ class LabelFonts {
     return filesByFont[font] ?? filesByFont[robotoFont]!;
   }
 
-  FontFiles get barcodeNumberFiles => filesFor(robotoFont);
+  FontFiles get robotoFiles => filesFor(robotoFont);
 
   LabelFonts onlyFor(Set<TextFont> fonts) {
     return LabelFonts({
@@ -209,7 +209,7 @@ String? _problemWithValue(
   return switch (item) {
     final BarcodeItem barcode => switch (barcode.type.problemWithValue(value)) {
       final problem? => 'cannot be this barcode. $problem',
-      null => null,
+      null => textChecker.problemWithBarcodeNumber(barcode, value),
     },
     final TextItem text => textChecker.problemWith(text, value),
     _ => null,

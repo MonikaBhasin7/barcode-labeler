@@ -27,7 +27,7 @@ class LabelTextChecker {
   final Map<(TextFont, bool), PdfFont> _pdfFonts = {};
 
   String? problemWith(TextItem item, String text) {
-    final font = _pdfFontFor(item);
+    final font = _pdfFontFor(item.font, bold: item.bold);
     final unprintable = _firstUnprintableLetter(text, font);
     if (unprintable != null) {
       return 'has a letter that cannot be printed yet ("$unprintable"). '
@@ -39,10 +39,19 @@ class LabelTextChecker {
     return null;
   }
 
-  PdfFont _pdfFontFor(TextItem item) {
-    return _pdfFonts.putIfAbsent((item.font, item.bold), () {
-      final files = _fonts.filesFor(item.font);
-      final bytes = item.bold ? files.bold : files.regular;
+  String? problemWithBarcodeNumber(BarcodeItem item, String value) {
+    if (!item.drawsTextUnderBars) return null;
+    final font = _pdfFontFor(item.numberFont, bold: false);
+    final unprintable = _firstUnprintableLetter(value, font);
+    if (unprintable == null) return null;
+    return 'has a letter that the number font cannot print ("$unprintable"). '
+        'Choose another font for the number under the bars.';
+  }
+
+  PdfFont _pdfFontFor(TextFont textFont, {required bool bold}) {
+    return _pdfFonts.putIfAbsent((textFont, bold), () {
+      final files = _fonts.filesFor(textFont);
+      final bytes = bold ? files.bold : files.regular;
       return PdfTtfFont(_document, ByteData.sublistView(bytes));
     });
   }

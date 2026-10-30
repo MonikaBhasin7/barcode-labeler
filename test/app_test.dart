@@ -61,6 +61,8 @@ void main() {
 
     expect(find.text('Barcode type'), findsOneWidget);
     expect(find.text('Value comes from'), findsOneWidget);
+    expect(find.text('Number font'), findsOneWidget);
+    expect(find.text('Number size'), findsOneWidget);
     expect(find.text('Untitled •'), findsOneWidget);
   });
 

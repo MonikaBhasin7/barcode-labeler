@@ -248,7 +248,7 @@ class PrintController extends GetxController {
       final pdf = await buildAlignmentTestPdf(
         sheet: design.sheet,
         offset: offset.value,
-        regularFont: fonts.barcodeNumberFiles.regular,
+        regularFont: fonts.robotoFiles.regular,
       );
       final printed = await _sendToPrinter(pdf);
       if (!printed) return const PrintOutcome.failed('Printing was cancelled.');

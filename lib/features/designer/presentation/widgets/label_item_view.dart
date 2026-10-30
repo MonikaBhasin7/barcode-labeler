@@ -94,7 +94,8 @@ class LabelItemView extends StatelessWidget {
       drawText: barcode.drawsTextUnderBars,
       textPadding: barcodeTextGapMm * pixelsPerMm,
       style: TextStyle(
-        fontFamily: 'Roboto',
+        fontFamily: barcode.numberFont.screenFamily,
+        fontFamilyFallback: const ['Roboto'],
         fontSize: _pointsToPixels(barcode.textSizePt),
         color: Colors.black,
       ),

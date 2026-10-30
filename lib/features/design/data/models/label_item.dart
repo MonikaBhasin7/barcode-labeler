@@ -244,6 +244,7 @@ class BarcodeItem extends LabelItem {
     this.type = BarcodeType.code128,
     this.showText = true,
     this.textSizePt = 9,
+    this.numberFont = robotoFont,
   });
 
   factory BarcodeItem.fromJson(Map<String, dynamic> json) {
@@ -256,6 +257,7 @@ class BarcodeItem extends LabelItem {
       type: readEnum(BarcodeType.values, json['type'], BarcodeType.code128),
       showText: readBool(json, 'showText', true),
       textSizePt: readDouble(json, 'textSizePt', 9),
+      numberFont: TextFont.fromJson(json),
     );
   }
 
@@ -263,6 +265,7 @@ class BarcodeItem extends LabelItem {
   final BarcodeType type;
   final bool showText;
   final double textSizePt;
+  final TextFont numberFont;
 
   bool get drawsTextUnderBars => showText && !type.isTwoDimensional;
 
@@ -277,6 +280,7 @@ class BarcodeItem extends LabelItem {
     BarcodeType? type,
     bool? showText,
     double? textSizePt,
+    TextFont? numberFont,
   }) {
     return BarcodeItem(
       id: id,
@@ -287,6 +291,7 @@ class BarcodeItem extends LabelItem {
       type: type ?? this.type,
       showText: showText ?? this.showText,
       textSizePt: textSizePt ?? this.textSizePt,
+      numberFont: numberFont ?? this.numberFont,
     );
   }
 
@@ -306,6 +311,7 @@ class BarcodeItem extends LabelItem {
       type: type,
       showText: showText,
       textSizePt: textSizePt,
+      numberFont: numberFont,
     );
   }
 
@@ -316,6 +322,7 @@ class BarcodeItem extends LabelItem {
     'type': type.name,
     'showText': showText,
     'textSizePt': textSizePt,
+    ...numberFont.toJson(),
   };
 }
 

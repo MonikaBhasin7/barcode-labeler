@@ -8,11 +8,13 @@ import '../../../design/data/models/label_font.dart';
 class FontField extends StatelessWidget {
   const FontField({
     super.key,
+    required this.label,
     required this.font,
     required this.installedFonts,
     required this.onChanged,
   });
 
+  final String label;
   final TextFont font;
   final InstalledFonts installedFonts;
   final ValueChanged<TextFont> onChanged;
@@ -41,7 +43,7 @@ class FontField extends StatelessWidget {
       onTap: () => _pickFont(context),
       child: InputDecorator(
         decoration: InputDecoration(
-          labelText: 'Font',
+          labelText: label,
           errorText: problem,
           suffixIcon: const Icon(Icons.arrow_drop_down),
         ),

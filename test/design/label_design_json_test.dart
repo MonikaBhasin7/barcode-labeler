@@ -130,6 +130,59 @@ void main() {
     expect(reopened.bold, isTrue);
   });
 
+  test('the number under a barcode keeps its font', () {
+    const barcode = BarcodeItem(
+      id: 'code',
+      name: 'Barcode 1',
+      frame: ItemFrame(x: 0, y: 0, width: 50, height: 18),
+      value: LabelValue(fixedText: '123456'),
+      numberFont: InstalledFont('Arial'),
+    );
+
+    final reopened = BarcodeItem.fromJson(
+      jsonDecode(jsonEncode(barcode.toJson())) as Map<String, dynamic>,
+    );
+    final old = BarcodeItem.fromJson({
+      'kind': 'barcode',
+      'id': 'old',
+      'name': 'Old barcode',
+      'frame': {'x': 0, 'y': 0, 'width': 50, 'height': 18},
+      'value': {'kind': 'fixedText', 'fixedText': '123456'},
+    });
+
+    expect(reopened.numberFont, const InstalledFont('Arial'));
+    expect(old.numberFont, robotoFont);
+  });
+
+  test('a barcode number font counts only when the number is shown', () {
+    const shown = BarcodeItem(
+      id: 'shown',
+      name: 'Shown',
+      frame: ItemFrame(x: 0, y: 0, width: 50, height: 18),
+      value: LabelValue(fixedText: '123456'),
+      numberFont: BuiltInFont(LabelFont.tinos),
+    );
+    final hidden = BarcodeItem(
+      id: 'hidden',
+      name: 'Hidden',
+      frame: const ItemFrame(x: 0, y: 20, width: 50, height: 18),
+      value: const LabelValue(fixedText: '123456'),
+      showText: false,
+      numberFont: const BuiltInFont(LabelFont.lato),
+    );
+    const design = LabelDesign(
+      id: 'numbers',
+      name: 'Numbers',
+      sheet: SheetLayout.wholeA4Page,
+      items: [shown],
+    );
+
+    expect(design.copyWith(items: [shown, hidden]).fontsUsed, {
+      robotoFont,
+      const BuiltInFont(LabelFont.tinos),
+    });
+  });
+
   test('a font from this PC never hides a built-in font', () {
     expect(isBuiltInFontName('Roboto Condensed'), isTrue);
     expect(isBuiltInFontName('tinos'), isTrue);

@@ -301,6 +301,7 @@ class _ItemProperties extends StatelessWidget {
         title: 'Look',
         children: [
           FontField(
+            label: 'Font',
             font: text.font,
             installedFonts: controller.installedFonts,
             onChanged: (font) => _change(
@@ -391,7 +392,14 @@ class _ItemProperties extends StatelessWidget {
               onChanged: (show) =>
                   _change(barcode.copyWith(showText: show), 'showText'),
             ),
-            if (barcode.showText)
+            if (barcode.showText) ...[
+              FontField(
+                label: 'Number font',
+                font: barcode.numberFont,
+                installedFonts: controller.installedFonts,
+                onChanged: (font) =>
+                    _change(barcode.copyWith(numberFont: font), 'numberFont'),
+              ),
               NumberField(
                 label: 'Number size',
                 suffix: 'pt',
@@ -401,6 +409,7 @@ class _ItemProperties extends StatelessWidget {
                 onChanged: (size) =>
                     _change(barcode.copyWith(textSizePt: size), 'textSize'),
               ),
+            ],
           ],
         ],
       ),

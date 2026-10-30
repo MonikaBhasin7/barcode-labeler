@@ -52,7 +52,7 @@ void main() {
     final pdf = await buildAlignmentTestPdf(
       sheet: sixLabelSheet,
       offset: const PrinterOffset(rightMm: 1, downMm: -0.5),
-      regularFont: readBundledFonts().barcodeNumberFiles.regular,
+      regularFont: readBundledFonts().robotoFiles.regular,
     );
     writeSampleWhenAsked('alignment_test.pdf', pdf);
 
@@ -107,5 +107,34 @@ void main() {
 
     expect(latin1.decode(pdf), contains('Lato-Regular'));
     expect(latin1.decode(pdf), isNot(contains('RobotoCondensed')));
+  });
+
+  test('the number under a barcode is printed in its own font', () async {
+    final design = stockLabelDesign.copyWith(
+      items: [
+        for (final item in stockLabelDesign.items)
+          item is BarcodeItem
+              ? item.copyWith(numberFont: const BuiltInFont(LabelFont.tinos))
+              : item,
+      ],
+    );
+    final request = stockPrintRequest();
+
+    final pdf = await buildLabelSheetsPdf(
+      LabelPrintRequest(
+        design: design,
+        records: request.records,
+        recordNumbers: request.recordNumbers,
+        copiesPerRecord: 1,
+        startAtPosition: 1,
+        serialStarts: const {},
+        typedAnswers: const {},
+        offset: PrinterOffset.none,
+        today: request.today,
+        fonts: request.fonts.onlyFor(design.fontsUsed),
+      ),
+    );
+
+    expect(latin1.decode(pdf), contains('Tinos-Regular'));
   });
 }
