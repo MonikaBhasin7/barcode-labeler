@@ -20,6 +20,7 @@ Compression=lzma2
 SolidCompression=yes
 WizardStyle=modern
 UninstallDisplayIcon={app}\barcode_labeler.exe
+SetupIconFile=..\windows\runner\resources\app_icon.ico
 ChangesAssociations=yes
 
 [Tasks]
